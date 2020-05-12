@@ -14,7 +14,7 @@ namespace cowrie_logviewer_data_analysis_tool.Scripts
 
         public override string By => "mauh@itu.dk & milr@itu.dk 2020";
 
-        public override Type[] ScriptTypes => new[] { typeof(GetIPsFromCowrie), typeof(FetchGeoLocations), typeof(FormatCovid19Data), typeof(CommandAnalysis), typeof(CountiesConnectedOverTime) };
+        public override Type[] ScriptTypes => new[] { typeof(GetIPsFromCowrie), typeof(FetchGeoLocations), typeof(FormatCovid19Data), typeof(CommandAnalysis), typeof(IPsConnectedOverTime) };
 
         public override void Run()
         {
@@ -32,8 +32,8 @@ namespace cowrie_logviewer_data_analysis_tool.Scripts
             SetScriptOutExtension(typeof(CommandAnalysis), "csv");
             SetScriptInFolder(typeof(CommandAnalysis), cowriePath);
 
-            SetScriptOutExtension(typeof(CountiesConnectedOverTime), "csv");
-            SetScriptInFolder(typeof(CountiesConnectedOverTime), cowriePath);
+            SetScriptOutExtension(typeof(IPsConnectedOverTime), "csv");
+            SetScriptInFolder(typeof(IPsConnectedOverTime), cowriePath);
 
             Dictionary<Type, string> io = new Dictionary<Type, string>();
 

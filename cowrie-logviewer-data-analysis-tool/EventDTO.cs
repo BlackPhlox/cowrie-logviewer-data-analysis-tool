@@ -17,6 +17,12 @@ namespace cowrie_logviewer_data_analysis_tool
         public string password { get; set; }
         public string arch { get; set; }
         public float duration { get; set; }
+        public string filename { get; set; }
+        public string shasum { get; set; }
+        public bool duplicate { get; set; }
+        public string destfile { get; set; }
+        public string realm { get; set; }
+        public string input { get; set; }
 
         public Event parseAll(Script script) {
             return new Event(script.Lookup(src_ip),src_ip,timestamp);

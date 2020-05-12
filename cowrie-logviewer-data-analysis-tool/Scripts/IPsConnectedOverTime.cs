@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace cowrie_logviewer_data_analysis_tool.Scripts
 {
-    class CountiesConnectedOverTime : Script, IReadWriteFiles
+    class IPsConnectedOverTime : Script, IReadWriteFiles
     {
-        public override string ScriptName => "CountiesConnectedOverTime";
+        public override string ScriptName => "IPsConnectedOverTime";
 
-        public override string Description => "Generates CSV-file of counties connected to the cowrie server over time";
+        public override string Description => "Generates CSV-file of ips connected to the cowrie server over time";
 
         public override string By => "mauh@itu.dk & milr@itu.dk 2020";
 

@@ -1,16 +1,23 @@
 ﻿using cowrie_logviewer_data_analysis_tool.Runner;
+using ICSharpCode.SharpZipLib.GZip;
+using ICSharpCode.SharpZipLib.Tar;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using cowrie_logviewer_data_analysis_tool.Util;
 
 namespace cowrie_logviewer_data_analysis_tool.Scripts
 {
-    class DownloadAnalyser : Script, IReadWriteFiles
+    class DownloadAnalyser : Script
     {
         public override string ScriptName => "Download analyser";
 
@@ -18,111 +25,80 @@ namespace cowrie_logviewer_data_analysis_tool.Scripts
 
         public override string By => "mauh@itu.dk & milr@itu.dk 2020";
 
+        Dictionary<string, DownloadFile> dls = new Dictionary<string, DownloadFile>();
+
         public override void Run()
         {
-            ReadFilesWriteToFile(InFolder.FullName, @"var\lib\cowrie.tar.gz", OutFile);
-        }
+            var cowriePath = @"C:\Users\thelu\OneDrive\Skrivebord\honeypotlogs 26_04\cowrie";
+            InFolder = Directory.CreateDirectory(cowriePath);
+            OutExtension = "json";
 
-        public BlockingCollection<string> ReadFilesWriteToFile(string folder, string fileNameWC, string toFile)
-        {
-            var matchesCollection = new BlockingCollection<string>();
+            var parent = Directory.GetParent(Directory.GetCurrentDirectory()).CreateSubdirectory("CowrieA");
+            var f = parent.CreateSubdirectory($"{ReplaceInvalidChars(ScriptName)}.{DateTime.Now.ToString(ScriptDateTimeFormat)}");
+            Trace.WriteLine("Working path: " + f.FullName);
+            OutFolder = f;
 
-            var files = Directory.GetFiles(folder, fileNameWC,
-                                         SearchOption.TopDirectoryOnly);
+            var filepath = @"C:\Users\thelu\OneDrive\Skrivebord\honeypotlogs 26_04\all\cowrie.tar";
 
-            Console.WriteLine("Reading Folder: " + folder);
-            var exceptions = new ValueTuple<string, Regex>[]
-                {
-                    ("change password", new Regex("CMD: echo \"root")) ,
-                    ("change password", new Regex("CMD: echo -e \"")) ,
-                    ("change password", new Regex(@"\|passwd")),
-                    ("change password", new Regex(" > /tmp/up.txt"))
-                };
-            var readTask = Task.Run(() =>
+            //https://stackoverflow.com/questions/42625845/asp-net-read-a-file-from-a-tar-gz-archive
+            /*using (Stream source = new GZipInputStream(new FileStream(filepath, FileMode.Open)))  //wc.OpenRead() create one stream with archive tar.gz from our server
+                {*/
+            using (TarInputStream tarStr = new TarInputStream(new FileStream(filepath, FileMode.Open)))   //TarInputStream is a stream from ICSharpCode.SharpZipLib.Tar library(need install SharpZipLib in nutgets)
             {
-                using (var writer = new StreamWriter(toFile))
+                TarEntry te;
+                try
                 {
-                    //CSV Header
-                    writer.WriteLine("ip,cmd");
-                    //List<string> cmds = new List<string>();
-                    Dictionary<string, long> cmds = new Dictionary<string, long>();
-                    try
+                    while ((te = tarStr.GetNextEntry()) != null)  // Go through all files from archive
                     {
-                        foreach (var file in files)
+                        if (te.Name.Contains("downloads"))
                         {
-                            string line2 = "";
-                            try
+                            if (te.Size > 1000)
                             {
-                                using (var reader = new StreamReader(file))
+                                if (!te.Name.Contains("tmp"))
                                 {
-                                    string line;
-
-                                    while ((line = reader.ReadLine()) != null)
+                                    var sha = te.Name.Replace("cowrie/downloads/", "");
+                                    if (dls.Any(d => d.Value.size == te.Size))
                                     {
-                                        line2 = line;
-                                        EventDTO _event = null;
+                                        var oldsha = dls.Where(d => d.Value.size == te.Size).FirstOrDefault();
+                                        oldsha.Value.count += 1;
+                                        oldsha.Value.ips.Add(new IpDate() { sha2 = sha });
 
-                                        try
-                                        {
-                                            _event = JsonConvert.DeserializeObject<EventDTO>(line);
-                                        }
-                                        catch (Exception)
-                                        {
-                                            continue;
-                                        }
-                                        if (_event.eventid != "cowrie.command.input") continue;
-
-                                        if (exceptions.Any(e => e.Item2.IsMatch(_event.message.ToString())))
-                                        {
-                                            var str = exceptions.Where(e => e.Item2.IsMatch(_event.message.ToString())).FirstOrDefault().Item1;
-                                            if (cmds.ContainsKey(str))
-                                            {
-                                                cmds.TryGetValue(str, out long l);
-                                                cmds.Remove(str);
-                                                cmds.Add(str, l + 1);
-                                            }
-                                            else cmds.Add(str, 1);
-                                            continue;
-                                        }
-
-                                        if (cmds.ContainsKey(_event.message.ToString()))
-                                        {
-                                            var str = _event.message.ToString();
-                                            cmds.TryGetValue(str, out long l);
-                                            cmds.Remove(str);
-                                            cmds.Add(str, l + 1);
-                                        }
-                                        else cmds.Add(_event.message.ToString(), 1);
+                                        dls.Remove(oldsha.Key);
+                                        dls.Add(oldsha.Key, oldsha.Value);
+                                        continue;
                                     }
+                                    dls.Add(sha, new DownloadFile() { sha2 = sha, size = te.Size, count = 1, ips = new List<IpDate>() { new IpDate() { sha2 = sha } } });
                                 }
-                            }
-                            catch (DirectoryNotFoundException e)
-                            {
-                                Console.WriteLine(e.StackTrace);
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(line2);
-                                Console.WriteLine(e.StackTrace);
                             }
                         }
                     }
-
-                    finally
-                    {
-                        matchesCollection.CompleteAdding();
-                    }
-                    foreach (var cmd in cmds)
-                    {
-                        writer.WriteLine(cmd.Key + "," + cmd.Value);
-                    }
+                }
+                catch (TarException tare)
+                {
+                    Console.WriteLine(tare.StackTrace);
+                    string text = File.ReadAllText(filepath);
+                    Console.WriteLine(text);
 
                 }
-            });
+            }
+            //}
 
-            Task.WaitAll(readTask);
+            int limit = 1000;
 
-            return matchesCollection;
+            dls.Count();
+            var s = dls.ToArray().Split(limit);
+
+            int lc = 0;
+            foreach (var item in s)
+            {
+                using (var writer = new StreamWriter(OutFile.Substring(0,OutFile.Length-5) + "." + (lc++) +".json"))
+                {
+                    foreach (var item1 in item)
+                    {
+                        writer.WriteLine(JsonConvert.SerializeObject(item1.Value));
+                    }
+                }
+            }
         }
     }
 }

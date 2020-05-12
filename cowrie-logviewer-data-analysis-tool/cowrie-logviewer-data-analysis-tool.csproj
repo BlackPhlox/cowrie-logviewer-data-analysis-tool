@@ -14,6 +14,21 @@
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -74,6 +89,7 @@
     <Compile Include="EventDTO.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="IPGeoDTO.cs" />
+    <Compile Include="MalwareDTO.cs" />
     <Compile Include="Runner\BaseScript.cs" />
     <Compile Include="Runner\BatchScript.cs" />
     <Compile Include="Runner\IPrompt.cs" />
@@ -82,6 +98,8 @@
     <Compile Include="Runner\IScript.cs" />
     <Compile Include="Runner\Script.cs" />
     <Compile Include="Runner\ScriptRunner.cs" />
+    <Compile Include="DownloadFile.cs" />
+    <Compile Include="Scripts\FetchMalwareData.cs" />
     <Compile Include="Scripts\GetIPsFromCowrie.cs" />
     <Compile Include="Scripts\Covid19CowrieAnalysis.cs" />
     <Compile Include="Scripts\DownloadAnalyser.cs" />
@@ -89,7 +107,7 @@
     <Compile Include="Scripts\TestEnv.cs" />
     <Compile Include="Scripts\FormatCovid19Data.cs" />
     <Compile Include="Scripts\FetchGeoLocations.cs" />
-    <Compile Include="Scripts\CountiesConnectedOverTime.cs" />
+    <Compile Include="Scripts\IPsConnectedOverTime.cs" />
     <Compile Include="CovidDTO.cs" />
     <Compile Include="Util\CountryCodeConverter.cs" />
     <Compile Include="Util\TextFileHandler.cs" />
@@ -100,6 +118,19 @@
     <None Include="Data\CountryMap.csv" />
     <None Include="Data\owid-covid-data.csv" />
     <None Include="packages.config" />
+    <None Include="Data\virustotalapi.secret" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

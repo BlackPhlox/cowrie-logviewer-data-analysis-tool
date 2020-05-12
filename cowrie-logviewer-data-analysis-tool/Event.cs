@@ -36,6 +36,10 @@ namespace cowrie_logviewer_data_analysis_tool
             PARAMS,
             [Description("cowrie.command.input")]
             INPUT
+            [Description("cowrie.session.file_download")]
+            DOWNLOAD
+            [Description("cowrie.session.file_upload")]
+            UPLOAD
         }
         */
 

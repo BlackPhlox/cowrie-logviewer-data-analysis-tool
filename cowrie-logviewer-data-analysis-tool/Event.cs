@@ -28,6 +28,8 @@ namespace cowrie_logviewer_data_analysis_tool
             KEX,
             [Description("cowrie.login.success")]
             SUCCESS,
+            [Description("cowrie.login.failed")]
+            FAILED,
             [Description("cowrie.direct-tcpip.request")]
             REQUEST,
             [Description("cowrie.direct-tcpip.data")]

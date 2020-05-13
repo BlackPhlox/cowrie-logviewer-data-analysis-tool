@@ -89,6 +89,7 @@
     <Compile Include="EventDTO.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="IPGeoDTO.cs" />
+    <Compile Include="IpUsernamePassword.cs" />
     <Compile Include="MalwareDTO.cs" />
     <Compile Include="Runner\BaseScript.cs" />
     <Compile Include="Runner\BatchScript.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="Scripts\FetchGeoLocations.cs" />
     <Compile Include="Scripts\IPsConnectedOverTime.cs" />
     <Compile Include="CovidDTO.cs" />
+    <Compile Include="Scripts\UsernameAndPasswordAnalysis.cs" />
     <Compile Include="Util\CountryCodeConverter.cs" />
     <Compile Include="Util\TextFileHandler.cs" />
     <Compile Include="Util\PrintUtil.cs" />

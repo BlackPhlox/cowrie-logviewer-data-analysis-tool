@@ -45,7 +45,7 @@ namespace cowrie_logviewer_data_analysis_tool.Scripts
                 using (var writer = new StreamWriter(toFile))
                 {
                     //CSV Header
-                    writer.WriteLine("ip,cmd");
+                    writer.WriteLine("command,count");
                     //List<string> cmds = new List<string>();
                     Dictionary<string, long> cmds = new Dictionary<string, long>();
                     try
